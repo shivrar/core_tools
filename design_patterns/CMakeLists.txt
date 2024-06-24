@@ -1,64 +1,38 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 project(design_patterns)
 
-# Default to C++14
-set(CMAKE_CXX_STANDARD 14)
+# Find dependencies
+find_package(ament_cmake REQUIRED)
 
-# Check if building within a ROS1 or ROS2 environment
-if(DEFINED ENV{ROS_DISTRO})
-  if("$ENV{ROS_DISTRO}" STREQUAL "noetic" OR "$ENV{ROS_DISTRO}" STREQUAL "melodic")
-    # ROS 1 build
-    find_package(catkin REQUIRED COMPONENTS)
-    catkin_package(
-      INCLUDE_DIRS include
-      LIBRARIES ${PROJECT_NAME}
-    )
-    include_directories(${catkin_INCLUDE_DIRS})
-    link_directories(${catkin_LIBRARY_DIRS})
-  elseif("$ENV{ROS_DISTRO}" MATCHES "foxy|eloquent|dashing")
-    # ROS 2 build
-    find_package(ament_cmake REQUIRED)
-    find_package(rclcpp REQUIRED)
-    ament_export_include_directories(include)
-    ament_export_libraries(${PROJECT_NAME})
-  endif()
-else()
-  # Non-ROS build
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install")
-endif()
+# Specify include directories
+include_directories(include)
 
-# Include directory
-include_directories(${PROJECT_SOURCE_DIR}/include)
-
-# Define the library
-add_library(${PROJECT_NAME} include/Mediator.h)  # Assuming implementation is header-only
+# Create the library
+add_library(${PROJECT_NAME} include/Mediator.h)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
+# Specify include directories for the target
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 
-# Define the executable
 add_executable(mediator_example src/main.cpp)
-target_link_libraries(mediator_example ${PROJECT_NAME})
 
-if(DEFINED catkin_LIBRARIES)
-  target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-elseif(DEFINED ament_cmake)
-  ament_target_dependencies(${PROJECT_NAME})
-endif()
-
-# Installation rules
-install(TARGETS ${PROJECT_NAME} mediator_example
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+# Install the library
+install(TARGETS ${PROJECT_NAME}
+  EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
-  INCLUDES DESTINATION include
-)
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin)
 
+# Install the header files
 install(DIRECTORY include/
-  DESTINATION include
-)
+  DESTINATION include/${PROJECT_NAME})
 
-# Conditional ament package call for ROS2
-if(DEFINED ament_cmake)
-  ament_package()
-endif()
+# Export package information
+ament_export_targets(export_${PROJECT_NAME})
+ament_export_dependencies(ament_cmake)
+
+ament_package()
 
