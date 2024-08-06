@@ -8,7 +8,7 @@ find_package(ament_cmake REQUIRED)
 include_directories(include)
 
 # Create the library
-add_library(${PROJECT_NAME} include/Mediator.h)
+add_library(${PROJECT_NAME} include/Mediator.h include/Singleton.h)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 # Specify include directories for the target
@@ -17,7 +17,8 @@ target_include_directories(${PROJECT_NAME}
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>)
 
-add_executable(mediator_example src/main.cpp)
+add_executable(patterns_example src/main.cpp)
+target_link_libraries(patterns_example ${PROJECT_NAME})
 
 # Install the library
 install(TARGETS ${PROJECT_NAME}
@@ -28,7 +29,13 @@ install(TARGETS ${PROJECT_NAME}
 
 # Install the header files
 install(DIRECTORY include/
-  DESTINATION include/${PROJECT_NAME})
+  DESTINATION include/${PROJECT_NAME}
+)
+
+install(TARGETS
+        patterns_example
+        DESTINATION lib/${PROJECT_NAME}
+        )
 
 # Export package information
 ament_export_targets(export_${PROJECT_NAME})
