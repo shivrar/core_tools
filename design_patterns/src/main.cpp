@@ -1,5 +1,6 @@
 #include "Mediator.h"
 #include "Singleton.h"
+#include "CRTP.h"
 
 // Example class to be managed by the singleton
 class Example
@@ -15,6 +16,45 @@ public:
 private:
     int a_;
     double b_;
+};
+
+template <typename Derived>
+class BaseClass : public CRTP<BaseClass, Derived>
+{
+public:
+    void DoSomethingImpl()
+    {
+        this->derived().DoSomething();
+    }
+
+    BaseClass() = default;
+
+    virtual ~BaseClass() = default;
+
+    virtual void DoSomething() = 0;
+
+};
+
+class Derived1 : public BaseClass<Derived1>
+{
+public:
+    Derived1() = default;
+
+private:
+    void DoSomething() override
+    {
+        std::cout << "Derived1 class" << std::endl;
+    };
+
+    friend BaseClass;
+};
+
+struct Derived2 : BaseClass<Derived1>
+{
+    void DoSomething() override
+    {
+        std::cout << "Derived2 class" << std::endl;
+    };
 };
 
 int main() {
@@ -52,6 +92,10 @@ int main() {
     }
     std::cout << std::endl;
 
+    Derived1 obj;
+    Derived2 obj2;
+    obj.DoSomethingImpl();
+    obj2.DoSomethingImpl();
     return 0;
 }
 

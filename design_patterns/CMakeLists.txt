@@ -8,7 +8,7 @@ find_package(ament_cmake REQUIRED)
 include_directories(include)
 
 # Create the library
-add_library(${PROJECT_NAME} include/Mediator.h include/Singleton.h)
+add_library(${PROJECT_NAME} include/Mediator.h include/Singleton.h include/CRTP.h)
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 # Specify include directories for the target
