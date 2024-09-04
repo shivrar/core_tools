@@ -19,43 +19,41 @@ private:
 };
 
 template <typename Derived>
-class BaseClass : public CRTP<BaseClass, Derived>
-{
+class BaseClass : public CRTP<BaseClass, Derived> {
 public:
-    void DoSomethingImpl()
-    {
+    void DoSomethingImpl() {
         this->derived().DoSomething();
     }
 
     BaseClass() = default;
-
     virtual ~BaseClass() = default;
-
     virtual void DoSomething() = 0;
-
 };
 
-class Derived1 : public BaseClass<Derived1>
-{
+class Derived1 : public BaseClass<Derived1> {
 public:
     Derived1() = default;
-
 private:
-    void DoSomething() override
-    {
+    void DoSomething() override {
         std::cout << "Derived1 class" << std::endl;
     };
-
-    friend BaseClass;
+    friend class BaseClass<Derived1>;
 };
 
-struct Derived2 : BaseClass<Derived1>
-{
-    void DoSomething() override
-    {
+class Derived2 : public BaseClass<Derived2> {
+public:
+    void DoSomething() override {
         std::cout << "Derived2 class" << std::endl;
     };
 };
+
+class Derived3 : public BaseClass<Derived3> {
+public:
+    void DoSomething() override {
+        std::cout << "Derived3 class" << std::endl;
+    }
+};
+
 
 int main() {
     ConcreteMediator<std::string> mediator;
@@ -92,10 +90,12 @@ int main() {
     }
     std::cout << std::endl;
 
-    Derived1 obj;
+    Derived1 obj1;
     Derived2 obj2;
-    obj.DoSomethingImpl();
-    obj2.DoSomethingImpl();
+    Derived3 obj3;
+    obj1.DoSomethingImpl(); // Calls Derived1's DoSomething
+    obj2.DoSomethingImpl(); // Calls Derived2's DoSomething
+    obj3.DoSomethingImpl(); // Calls Derived3's DoSomething
     return 0;
 }
 
