@@ -24,17 +24,16 @@ public:
     void DoSomethingImpl() {
         this->derived().DoSomething();
     }
-
+private:
     BaseClass() = default;
-    virtual ~BaseClass() = default;
-    virtual void DoSomething() = 0;
+    friend Derived;
 };
 
 class Derived1 : public BaseClass<Derived1> {
 public:
     Derived1() = default;
 private:
-    void DoSomething() override {
+    void DoSomething() {
         std::cout << "Derived1 class" << std::endl;
     };
     friend class BaseClass<Derived1>;
@@ -42,14 +41,14 @@ private:
 
 class Derived2 : public BaseClass<Derived2> {
 public:
-    void DoSomething() override {
+    void DoSomething() {
         std::cout << "Derived2 class" << std::endl;
     };
 };
 
 class Derived3 : public BaseClass<Derived3> {
 public:
-    void DoSomething() override {
+    void DoSomething() {
         std::cout << "Derived3 class" << std::endl;
     }
 };
@@ -93,6 +92,7 @@ int main() {
     Derived1 obj1;
     Derived2 obj2;
     Derived3 obj3;
+
     obj1.DoSomethingImpl(); // Calls Derived1's DoSomething
     obj2.DoSomethingImpl(); // Calls Derived2's DoSomething
     obj3.DoSomethingImpl(); // Calls Derived3's DoSomething
